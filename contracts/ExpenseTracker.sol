@@ -11,7 +11,7 @@ contract ExpenseTracker {
     
     constructor() public {
         owner= msg.sender;
-        _Balance=100000;
+        _Balance=10000000;
         _balances[owner]=_Balance;
         emit Transfer(address(this),owner,_Balance);
     }

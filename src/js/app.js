@@ -26,7 +26,7 @@ App = {
     }
     // If no injected web3 instance is detected, fall back to Ganache
     else {
-      App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
+      App.web3Provider = new Web3.providers.HttpProvider('http://localhost:8545');
     }
     web3 = new Web3(App.web3Provider);
     App.getMetaskAccountID()
@@ -64,10 +64,22 @@ App = {
     });
   },
 
+
+
+  listenForEvents: function() {
+    App.contracts.ExpenseTracker.deployed().then(function(instance) {
+      instance.Transfer({}, {
+        fromBlock: 0,
+        toBlock: 'latest'
+      }).watch(function(error, event) {
+        console.log("event triggered", event)
+        App.render();
+      })
+    });
+  },
+
   render: function() {
     var ExpenseTrackerInstance;
-    var loader = $("#loader");
-    var content = $("#content");
 
         // Load account data
     web3.eth.getCoinbase(function(err, account) {
@@ -84,6 +96,37 @@ App = {
       $("#balance").html(+ bal);
 
     });
+
+    $("#deposit").click(function(){
+      
+      amt= parseInt($("#Income_amount").val());
+      App.contracts.ExpenseTracker.deployed().then(function(instance){
+        web3.eth.defaultAccount = ethereum._state.accounts[0]
+        send_amount=instance;
+        return send_amount.Add_Income(amt).send({from:App.account});
+      }).then(function(tx){
+        console.log(tx);
+      }).catch(function(tx){
+        console.log(tx);
+      })
+      
+    });
+    $("#withdraw").click(function(){
+      
+      amt= parseInt($("#Expense_amount").val());
+      App.contracts.ExpenseTracker.deployed().then(function(instance){
+        web3.eth.defaultAccount = ethereum._state.accounts[0]
+        send_amount=instance;
+        return send_amount.Add_Expense(amt).send({from:App.account});
+      }).then(function(tx){
+        console.log(tx);
+      }).catch(function(tx){
+        console.log(tx);
+      })
+      
+    });
+
+    
     
   }
 
